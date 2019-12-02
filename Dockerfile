@@ -1,18 +1,21 @@
 # build stage
 FROM golang:1.13.4-alpine as builder
-LABEL maintainer="esplo@users.noreply.github.com"
+LABEL maintainer="voortwis@users.noreply.github.com"
 
 RUN apk update && apk upgrade && \
     apk add --no-cache git openssh openssl gettext
 
 # RUN export GO111MODULE=on && go mod init && go mod vendor && 
 RUN go get -u github.com/improbable-eng/grpc-web/go/grpcwebproxy
+RUN mkdir -p /tmp/ \
+    && openssl req -new -x509 -sha256 -newkey rsa:2048 -days 365 -nodes -out /tmp/localhost.crt -keyout /tmp/localhost.key -subj "/C=NL/ST=Gelderland/L=Loil/O=tikc/OU=dev/CN=localhost"
 
 # deploy stage
 FROM alpine:latest
-LABEL maintainer="klaasjan@voortwis.nl"
+LABEL maintainer="voortwis@users.noreply.github.com"
 
-COPY --from=builder /go/bin/grpcwebproxy .
+COPY --from=builder /go/bin/grpcwebproxy ./
+COPY --from=builder /tmp/localhost.crt /tmp/localhost.key ./
 
 CMD [ \
     "./grpcwebproxy", \
