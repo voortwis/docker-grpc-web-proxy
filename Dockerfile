@@ -1,5 +1,5 @@
 # build stage
-FROM golang:1.9.4-alpine as builder
+FROM golang:1.13.4-alpine as builder
 LABEL maintainer="esplo@users.noreply.github.com"
 
 RUN apk update && apk upgrade && \
